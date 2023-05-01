@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  docker-auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: alexlowe64/docker-auth-service
+    container_name: docker-auth-service
+    ports:
+      - "5001:5001"

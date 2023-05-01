@@ -1,0 +1,30 @@
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  host: https://docker-registry.alex-lowe.me
+  secret: o0%h^^O4xwKqZ6^0eGikMimE6
+  headers:
+    X-Content-Type-Options: [nosniff]
+auth:
+  token:
+    realm: https://docker-registry-auth.alex-lowe.me
+    service: docker-registry.alex-lowe.me
+    issuer: docker-registry-auth.alex-lowe.me
+    rootcertbundle: /ssl/server.pem
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+users:
+  admin:
+    password: pleasechange
+    access: [push, pull]
