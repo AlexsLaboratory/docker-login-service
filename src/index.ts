@@ -5,7 +5,7 @@ import { Access, User} from './types';
 import fs from 'fs';
 import express, {json, Express, Request, Response} from 'express';
 import { resolve } from 'path';
-import { generateJWT } from './utils';
+import { generateJWT, parseRequest } from './utils';
 import { HttpError } from './classes';
 
 const config = fs.readFileSync('config.yml', 'utf8');
@@ -32,6 +32,8 @@ const port = 5001;
 app.get('/token', (req: Request, res: Response) => {
     try {
         const token = generateJWT(req);
+        log("Token: " + token);
+        parseRequest(req);
         res
         .status(200)
         .json({token});

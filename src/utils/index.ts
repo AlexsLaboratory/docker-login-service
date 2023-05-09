@@ -5,6 +5,7 @@ import { resolve } from 'path';
 import { Access, User} from '../types';
 import { parse, stringify } from 'yaml';
 import { HttpError } from '../classes';
+import { log } from 'console';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -15,9 +16,10 @@ const parseConfig = parse(config);
 
 const { users } = parseConfig;
 
-export function parseRequest(req: Request): Request {
-    const {scope, service, account} = req.query;
-    return req;
+export function parseRequest(req: Request) {
+    const {scope, service} = req.query;
+    log("Scope: " + scope);
+    log("Service: " + service);
 }
 
 export function generateJWT(req: Request): string | HttpError {
