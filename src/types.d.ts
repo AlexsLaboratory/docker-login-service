@@ -5,8 +5,9 @@ export interface User {
     password: string;
 }
 export interface AuthorizationRequestQuery extends Request {
-    Type: string;
-    Name: string;
-    Actions: string[];
-    Account: string;
+    Type?: string;
+    Name?: string;
+    Actions?: string[];
+    Account?: string;
+    Service?: string;
 }
