@@ -2,9 +2,11 @@ import express, {Request} from 'express';
 import { sign, verify, SignOptions } from 'jsonwebtoken';
 import fs from 'fs';
 import { resolve } from 'path';
-import { Access, AuthorizationRequestQuery, User} from '../types';
+import { Access, AuthorizationRequestQuery, CustomSignOptions, User} from '../types';
 import { parse, stringify } from 'yaml';
 import { HttpError } from '../classes';
+import { Hash, Sign, createHash } from 'crypto';
+import { encode, decode } from 'base32-transposer';
 import { log } from 'console';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -34,13 +36,28 @@ export function parseRequest(req: AuthorizationRequestQuery): AuthorizationReque
 	}
 	return req;
 }
+
+function generateKidSha256(): Hash {
+    const publicKeyBuffer = Buffer.from(publicKey);
+    return createHash('sha256').update(publicKeyBuffer);
+}
+
+function generateKid(): string {
+    const hash = generateKidSha256();
+    return encode(hash.digest());
+}
     
 export function generateJWT(req: Request): string | HttpError {
     const signOptions: SignOptions = {
         algorithm: 'RS256',
         expiresIn: '12h',
         issuer: parseConfig.auth.token.issuer,
-        audience: parseConfig.auth.token.service
+        audience: parseConfig.auth.token.service,
+        header: {
+            typ: 'JWT',
+            alg: 'RS256',
+            kid: generateKid(),
+        }
     };
     const { authorization } = req.headers;
     if (!authorization) throw new HttpError('UNAUTHORIZED', 401);

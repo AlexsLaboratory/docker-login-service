@@ -28,9 +28,10 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "webpack": "^5.79.0",
+    "base32-transposer": "^1.1.2",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "webpack": "^5.79.0",
     "yaml": "^2.2.1"
   }
 }

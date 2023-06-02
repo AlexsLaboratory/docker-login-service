@@ -1,4 +1,5 @@
 import express, {Request} from 'express';
+import {SignOptions} from 'jsonwebtoken';
 export declare type Access = 'push' | 'pull';
 export interface User {
     access: Access;
@@ -10,4 +11,8 @@ export interface AuthorizationRequestQuery extends Request {
     Actions?: string[];
     Account?: string;
     Service?: string;
+}
+
+export interface CustomSignOptions extends SignOptions {
+    kid: string;
 }

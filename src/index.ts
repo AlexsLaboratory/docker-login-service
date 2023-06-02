@@ -19,7 +19,6 @@ app.get('/token', (req: Request, res: Response) => {
     try {
         const token = generateJWT(req);
         parseRequest(req);
-        log("Request: ", req);
         res
         .status(200)
         .json({token});
