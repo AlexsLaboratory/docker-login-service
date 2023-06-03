@@ -2,11 +2,11 @@ import express, {Request} from 'express';
 import { sign, verify, SignOptions } from 'jsonwebtoken';
 import fs from 'fs';
 import { resolve } from 'path';
-import { Access, AuthorizationRequestQuery, CustomSignOptions, User} from '../types';
+import { AuthorizationRequestQuery, User} from '../types';
 import { parse, stringify } from 'yaml';
 import { HttpError } from '../classes';
 import { Hash, Sign, createHash } from 'crypto';
-import { encode, decode } from 'base32-transposer';
+import { encode } from 'base32-transposer';
 import { log } from 'console';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -44,10 +44,23 @@ function generateKidSha256(): Hash {
 
 function generateKid(): string {
     const hash = generateKidSha256();
-    return encode(hash.digest());
+    const hashBuffer = hash.digest();
+    const base32Kid = encode(hashBuffer);
+    const base32KidArray = [...base32Kid];
+    let kid240 = '';
+    for (const [index, value] of base32KidArray.entries()) {
+        const bitCount = (index + 1) * 5;
+        const bitCountMod = bitCount % 4;
+        kid240 += base32KidArray[index];
+        if (bitCountMod === 0) kid240 += ':';
+        if (bitCount === 240) break;
+    }
+    if (kid240.endsWith(':')) kid240 = kid240.slice(0, -1);
+    return kid240;
 }
     
 export function generateJWT(req: Request): string | HttpError {
+    const kid = generateKid();
     const signOptions: SignOptions = {
         algorithm: 'RS256',
         expiresIn: '12h',
@@ -56,7 +69,7 @@ export function generateJWT(req: Request): string | HttpError {
         header: {
             typ: 'JWT',
             alg: 'RS256',
-            kid: generateKid(),
+            kid
         }
     };
     const { authorization } = req.headers;
