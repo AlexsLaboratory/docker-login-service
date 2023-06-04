@@ -5,7 +5,12 @@
     "outDir": "./dist",
     "moduleResolution": "node",
     "target": "ES2020",
-    "allowJs": true
+    "allowJs": true,
   },
-  "files": ["index.ts"]
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./node_modules"
+  ]
 }

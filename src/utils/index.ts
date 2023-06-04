@@ -1,8 +1,8 @@
-import express, {Request} from 'express';
+import express, { Request } from 'express';
 import { sign, verify, SignOptions } from 'jsonwebtoken';
 import fs from 'fs';
 import { resolve } from 'path';
-import { AuthorizationRequestQuery, User} from '../types';
+import { Access, Actions, User } from '../types';
 import { parse, stringify } from 'yaml';
 import { HttpError } from '../classes';
 import { Hash, Sign, createHash } from 'crypto';
@@ -18,23 +18,23 @@ const parseConfig = parse(config);
 
 const { users } = parseConfig;
 
-export function parseRequest(req: AuthorizationRequestQuery): AuthorizationRequestQuery {
-    const {scope, service} = req.query as {scope: string, service: string};
+export function parseRequest(req: Request): Request {
+    const { scope, service } = req.query as { scope: string, service: string };
     req.Service = service;
     const parts = scope.split(':') as string[];
     if (parts.length > 0) {
-		req.Type = parts[0]
-	}
-	if (parts.length > 1) {
-		req.Name = parts[1]
-	}
-	if (parts.length > 2) {
-		req.Actions = parts[2].split(",")
-	}
-	if (req.Account == "") {
-		req.Account = req.Name
-	}
-	return req;
+        req.Type = parts[0]
+    }
+    if (parts.length > 1) {
+        req.Name = parts[1]
+    }
+    if (parts.length > 2) {
+        req.Actions = parts[2].split(",") as Actions[]
+    }
+    if (req.Account == "") {
+        req.Account = req.Name
+    }
+    return req;
 }
 
 function generateKidSha256(): Hash {
@@ -58,7 +58,7 @@ function generateKid(): string {
     if (kid240.endsWith(':')) kid240 = kid240.slice(0, -1);
     return kid240;
 }
-    
+
 export function generateJWT(req: Request): string | HttpError {
     const kid = generateKid();
     const signOptions: SignOptions = {
@@ -66,6 +66,7 @@ export function generateJWT(req: Request): string | HttpError {
         expiresIn: '12h',
         issuer: parseConfig.auth.token.issuer,
         audience: parseConfig.auth.token.service,
+        notBefore: '0s',
         header: {
             typ: 'JWT',
             alg: 'RS256',
@@ -77,10 +78,12 @@ export function generateJWT(req: Request): string | HttpError {
     const [username, password] = Buffer.from(authorization.split(' ')[1], 'base64').toString().split(':');
     const user = users[username] as User;
     if (!user) throw new HttpError('UNAUTHORIZED', 401);
+    const access: Array<Access> = [
+        { type: req.Type, name: req.Name, actions: req.Actions },
+    ];
     const payload = {
-        name: username,
-        admin: true
-    };
+        access,
+    }
     if (user.password !== password) throw new HttpError('UNAUTHORIZED', 401);
     return sign(payload, privateKey, signOptions);
 }

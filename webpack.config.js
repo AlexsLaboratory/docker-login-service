@@ -6,7 +6,7 @@ const path = require("path");
 const isProduction = process.env.NODE_ENV == "production";
 
 const config = {
-  entry: "./index.ts",
+  entry: "./src/index.ts",
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),

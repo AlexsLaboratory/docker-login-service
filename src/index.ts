@@ -17,8 +17,8 @@ const port = 5001;
 
 app.get('/token', (req: Request, res: Response) => {
     try {
-        const token = generateJWT(req);
         parseRequest(req);
+        const token = generateJWT(req);
         res
         .status(200)
         .json({token});

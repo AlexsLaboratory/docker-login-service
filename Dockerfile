@@ -6,7 +6,7 @@ COPY tsconfig.json .
 COPY config.yml .
 COPY webpack.config.js .
 RUN npm install
-COPY src .
+COPY src ./src
 RUN npm run build:prod
 
 FROM node:18.16.0-alpine3.16
