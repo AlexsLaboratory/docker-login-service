@@ -5,14 +5,14 @@ import { resolve } from 'path';
 import { Access, Actions, User } from '../types';
 import { parse, stringify } from 'yaml';
 import { HttpError } from '../classes';
-import { Hash, Sign, createHash } from 'crypto';
+import { Hash, Sign, createHash, randomUUID } from 'crypto';
 import { encode } from 'base32-transposer';
 import { log } from 'console';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const privateKey = isProduction ? fs.readFileSync('/ssl/server.key', 'utf8') : fs.readFileSync(resolve(__dirname, 'auth_certificates', 'server.key'), 'utf8');
-const publicKey = isProduction ? fs.readFileSync('/ssl/server.pem', 'utf8') : fs.readFileSync(resolve(__dirname, 'auth_certificates', 'server.pem'), 'utf8');
+const privateKey = isProduction ? fs.readFileSync('/ssl/private.ec-256.key', 'utf8') : fs.readFileSync(resolve(__dirname, 'auth_certificates', 'private.ec-256.key'), 'utf8');
+const publicKey = isProduction ? fs.readFileSync('/ssl/public.pem', 'utf8') : fs.readFileSync(resolve(__dirname, 'auth_certificates', 'public.pem'), 'utf8');
 const config = fs.readFileSync('config.yml', 'utf8');
 const parseConfig = parse(config);
 
@@ -62,14 +62,14 @@ function generateKid(): string {
 export function generateJWT(req: Request): string | HttpError {
     const kid = generateKid();
     const signOptions: SignOptions = {
-        algorithm: 'RS256',
         expiresIn: '12h',
         issuer: parseConfig.auth.token.issuer,
         audience: parseConfig.auth.token.service,
         notBefore: '0s',
+        jwtid: randomUUID().replace(/-/g, ''),
         header: {
             typ: 'JWT',
-            alg: 'RS256',
+            alg: 'ES256',
             kid
         }
     };

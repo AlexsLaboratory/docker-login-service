@@ -18,7 +18,7 @@ auth:
     realm: https://docker-registry-auth.alex-lowe.me
     service: docker-registry.alex-lowe.me
     issuer: docker-registry-auth.alex-lowe.me
-    rootcertbundle: /ssl/server.pem
+    rootcertbundle: /ssl/public.pem
 health:
   storagedriver:
     enabled: true
